@@ -163,6 +163,7 @@ RK4.Integrate(t0=0, tmax=1e7, h=1e4)
 - Expand 3D visualization options (e.g., customizable views, additional energy plots).
 - Add support for external celestial datasets.
 - Refine loaders from .bsp and similar files from SPICE.
+- Add better calculation of ecliptics (galaxy, planets, possibly equatorial plane...)
 
 ## Contributions
 
