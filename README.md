@@ -123,23 +123,27 @@ animate_with_energy_Newton_3D(
 ```
 .
 ├── core/
-│   ├── rkmethods.py            # High-order Runge-Kutta implementations
-│   ├── RKTables.py             # RK coefficient tables
-│   ├── hamilton.py             # Hamiltonian models
-│   ├── simulation_manager.py   # Live simulation tool
-├── visualization/
-│   ├── plotting_helpers.py     # 2D visualization tools
-│   ├── plotting_helpers_3D.py  # 3D visualization tools    
-├── examples/
-│   ├── main.py                 # 2D simulation example
-│   ├── main3D.py               # 3D simulation example
-│   ├── precision_testing.py    
-├── data/
-│   ├── solar_system_3d.json
-│   ├── solar_system_2d.json    
-├── README.md                   
-├── LICENSE
-├── requirements.txt            # Python package dependencies
+│   ├── __init__.py            
+│   ├── hamilton.py            # Hamiltonian models
+│   ├── rkmethods.py           # User-defined Runge-Kutta
+│   ├── RKTables.py            # RK coefficient tables
+│   ├── simulation_manager.py  # Live simulation tool
+├── database/
+│   ├── solar_system_3d.json          # 3D solar system data
+│   ├── solar_system_2d.json          # 2D solar system data
+│   ├── banger_solar_system_3d.json   # Extended 3D solar system data
+│   ├── banger_solar_system_2d.json   # Extended 2D solar system data
+├── helpers/
+│   ├── __init__.py            
+│   ├── plotting_helpers.py      # 2D visualization tools
+│   ├── plotting_helpers_3D.py   # 3D visualization tools
+├── main.py                      # 2D simulation example
+├── main3D.py                    # 3D simulation example
+├── real-time3D.py               # Real-time 3D simulation example
+├── precision_testing.py         # Precision testing and error analysis example
+├── LICENSE                    
+├── README.md                  
+├── requirements.txt           
 ```
 
 ## Configuration
