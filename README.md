@@ -114,16 +114,24 @@ animate_with_energy_Newton_3D(
 
 ```
 .
-├── precision_testing.py       # Error analysis and visualization
-├── rkmethods.py               # High-order Runge-Kutta implementations
-├── RKTables.py                # RK coefficient tables
-├── simulation_manager.py      # Solar system simulation driver
-├── hamilton.py                # Hamiltonian models
-├── plotting_helpers.py        # 2D visualization tools
-├── plotting_helpers_3D.py     # 3D visualization tools
-├── main.py                    # 2D simulation example
-├── main3D.py                  # 3D simulation example
-├── solar_system_3d.json       # Initial conditions for solar system simulation
+├── core/
+│   ├── rkmethods.py            # High-order Runge-Kutta implementations
+│   ├── RKTables.py             # RK coefficient tables
+│   ├── hamilton.py             # Hamiltonian models
+│   ├── simulation_manager.py   # Live simulation tool
+├── visualization/
+│   ├── plotting_helpers.py     # 2D visualization tools
+│   ├── plotting_helpers_3D.py  # 3D visualization tools    
+├── examples/
+│   ├── main.py                 # 2D simulation example
+│   ├── main3D.py               # 3D simulation example
+│   ├── precision_testing.py    
+├── data/
+│   ├── solar_system_3d.json
+│   ├── solar_system_2d.json    
+├── README.md                   
+├── LICENSE
+├── requirements.txt            # Python package dependencies
 ```
 
 ## Configuration
