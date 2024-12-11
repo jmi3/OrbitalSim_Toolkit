@@ -1,5 +1,5 @@
 import numpy as np
-from RKTables import RK_COEFFICIENT_TABLES
+from core.RKTables import RK_COEFFICIENT_TABLES
 
 class RKp:
     
