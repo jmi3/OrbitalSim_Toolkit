@@ -38,7 +38,7 @@ Ensure you have the following installed:
    ```
 2. Navigate to the project directory:
    ```bash
-   cd high-precision-orbital-simulation
+   cd path/to/repo
    ```
 
 ## Usage
