@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import json
-from matplotlib.animation import FuncAnimation
-from hamilton import NewtonHamiltonian, KeplerHamiltonian
-from rkmethods import RKp
+from matplotlib.animation import FuncAnimation, PillowWriter
+from core.hamilton import NewtonHamiltonian, KeplerHamiltonian
+from core.rkmethods import RKp
 
 def plot_rkp_solutions(rkp_solvers, initial_conditions, dydt, t0, tmax, h, 
                        masses=None, central_body_index=None, mass_centre_view=False, central_body_view=False,
-                       xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), names = None, gridshape=None, sizeOfFig = 5):
+                       xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), names = None, gridshape=None, sizeOfFig = 5, output_filename=None):
     """
     Plots RKp solutions for all given rkp_solvers. 
     Returns void.
@@ -69,7 +69,9 @@ def plot_rkp_solutions(rkp_solvers, initial_conditions, dydt, t0, tmax, h,
         ax.set_title(f"RK{solver.order} solver")
         ax.legend()
         ax.grid(True)
-    
+    if output_filename is not None:
+        fig.savefig(output_filename)
+
     plt.tight_layout()
     plt.show(block=True)
 
@@ -79,7 +81,7 @@ def plot_rkp_solutions(rkp_solvers, initial_conditions, dydt, t0, tmax, h,
 def animate_with_energy_Newton(positions, momenta, masses=None, central_body_index=None, 
                         mass_centre_view=False, central_body_view=False,
                         xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), dt=1, interval=5, 
-                        names=None):
+                        names=None, output_filename=None):
 
     """
     Runs animated version of the given positions history array. Introduces energies as separate graphs.
@@ -184,6 +186,10 @@ def animate_with_energy_Newton(positions, momenta, masses=None, central_body_ind
         return [*bodies, *kin_energies, pot_energy]
 
     ani = FuncAnimation(fig, update, frames=num_steps, init_func=init, interval=interval)
+    
+    if output_filename is not None:
+        ani.save(output_filename, writer=PillowWriter(fps=1000/interval))
+
     plt.legend()
     plt.show()
 
@@ -193,7 +199,7 @@ def animate_with_energy_Newton(positions, momenta, masses=None, central_body_ind
 
 def animate_rkp_motion(positions, masses=None, central_body_index=None, 
                         mass_centre_view=False, central_body_view=False,
-                        xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), interval=50):
+                        xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), interval=50, output_filename=None):
     """
     Runs animated version of the given positions history array
 
@@ -256,6 +262,8 @@ def animate_rkp_motion(positions, masses=None, central_body_index=None,
         return bodies + trails
 
     ani = FuncAnimation(fig, update, frames=num_steps, init_func=init, blit=True, interval=interval)
+    if output_filename is not None:
+        ani.save(output_filename, writer=PillowWriter(fps=1000/interval))
     plt.legend()
     plt.show()
 
@@ -265,7 +273,7 @@ def animate_rkp_motion(positions, masses=None, central_body_index=None,
 def animate_with_energy_Kepler(positions, momenta, masses=None, central_body_index=None, 
                         mass_centre_view=False, central_body_view=False,
                         xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), dt=1, interval=5, 
-                        names=None, linelength=100):
+                        names=None, linelength=100, output_filename=None):
 
     """
     Runs animated version of the given positions history array
@@ -372,12 +380,14 @@ def animate_with_energy_Kepler(positions, momenta, masses=None, central_body_ind
         return [*bodies,*trajectories, Lp, energy]
 
     ani = FuncAnimation(fig, update, frames=num_steps, init_func=init, interval=interval)
+    if output_filename is not None:
+        ani.save(output_filename, writer=PillowWriter(fps=1000/interval))
     plt.legend()
     plt.show()
 
 def animate_multiple_with_energy_Kepler(positions_dict, momenta_dict, masses_dict=None, 
                         xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), dt=1, interval=5, 
-                        names_dict=None, linelength=100, sizer=1.1):
+                        names_dict=None, linelength=100, sizer=1.1, output_filename=None):
 
     """
     Runs animated version of the given positions history array for multiple bodies.
@@ -493,5 +503,7 @@ def animate_multiple_with_energy_Kepler(positions_dict, momenta_dict, masses_dic
         return artists
 
     ani = FuncAnimation(fig, update, frames=num_steps, init_func=init, interval=interval)
+    if output_filename is not None:
+        ani.save(output_filename, writer=PillowWriter(fps=1000/interval))
     plt.legend()
     plt.show()

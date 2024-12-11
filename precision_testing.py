@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from hamilton import KeplerHamiltonian as H
-from rkmethods import RKp
-from plotting_helpers import animate_with_energy_Kepler,animate_multiple_with_energy_Kepler, plot_rkp_solutions
+from core.hamilton import KeplerHamiltonian as H
+from core.rkmethods import RKp
+from helpers.plotting_helpers import animate_with_energy_Kepler,animate_multiple_with_energy_Kepler, plot_rkp_solutions
 
 
 
@@ -17,7 +17,7 @@ class dHdQP:
         # dq/dt = dH/dp , dp/dt = -dH/dq
         return np.append(self.H.dHdp(P),-self.H.dHdq(Q),axis=0)
 
-def CompareSolutionErrors(ICs, t0, tmax, Ns, Ps, **kwags):
+def CompareSolutionErrors(ICs, t0, tmax, Ns, Ps, output_filename=None, **kwags):
     
      P_errors = []
 
@@ -55,9 +55,12 @@ def CompareSolutionErrors(ICs, t0, tmax, Ns, Ps, **kwags):
      plt.legend()
      plt.grid(True, which="both", linestyle="--", linewidth=0.5)
      plt.title('Error vs. Time step')
+     if output_filename is not None:
+        fig.savefig(output_filename)
+
      plt.show()
 
-def IntegrateAndAnimate(ICs, t0, tmax, N, P ):
+def IntegrateAndAnimate(ICs, t0, tmax, N, P, output_filename=None):
 
 
      RK4 = RKp(order=P)
@@ -80,10 +83,11 @@ def IntegrateAndAnimate(ICs, t0, tmax, N, P ):
           central_body_view=False,  # or True
           xlim=(-2, 2),
           ylim=(-2, 2),
-          interval=5
+          interval=5,
+          output_filename=output_filename
      )
 
-def IntegrateAndAnimateMultiplePs(ICs, t0, tmax, N, Ps, sizer = 1.1 ):
+def IntegrateAndAnimateMultiplePs(ICs, t0, tmax, N, Ps, sizer = 1.1, output_filename=None):
      positions_dict = {}
      momenta_dict = {}
 
@@ -106,11 +110,12 @@ def IntegrateAndAnimateMultiplePs(ICs, t0, tmax, N, Ps, sizer = 1.1 ):
           xlim=(-2, 2),
           ylim=(-2, 2),
           interval=5,
-          sizer=sizer
+          sizer=sizer,
+          output_filename=output_filename
      )
 
 
-def CompareSolutions(ICs, t0, tmax, N, Ps, gridshape = None, sizeOfFig= 5):
+def CompareSolutions(ICs, t0, tmax, N, Ps, gridshape = None, sizeOfFig= 5, output_filename=None):
      
      plot_rkp_solutions(
           rkp_solvers=[RKp(order = i) for i in Ps],
@@ -121,8 +126,9 @@ def CompareSolutions(ICs, t0, tmax, N, Ps, gridshape = None, sizeOfFig= 5):
           tmax=tmax,
           xlim=(-2,2),
           ylim=(-2,2),
-          gridshape = gridshape,
-          sizeOfFig = sizeOfFig
+          gridshape=gridshape,
+          sizeOfFig=sizeOfFig,
+          output_filename=output_filename
      )
 
 
@@ -136,19 +142,29 @@ ICs = np.array([
 
 # Setup integration parameters
 t0 = 0
-years = 1
+years = 5
 tmax = 2 * np.pi * years
 
 # Numbers of steps we wish to examine
 Ns = [100 * 2**i for i in range(9)]
 
 # Orders we want to test
-Ps = [1,2,3,4,5,"5GPT",6,"6GPT"]
+Ps = [1,2,3,4,5,6]
 
-# Perform desired action
-# IntegrateAndAnimateMultiplePs(ICs=ICs, t0=t0, tmax=tmax, N=1000, Ps=[4,5,"5GPT",6,"6GPT"], sizer=1.00001)
-# CompareSolutions(ICs=ICs, t0=t0, tmax=tmax, N=Ns[1], Ps=Ps, gridshape=(2,2), sizeOfFig=4.5)
-CompareSolutionErrors(ICs=ICs, t0=t0, tmax=tmax, Ns=Ns, Ps=Ps, gridshape=(2,2), sizeOfFig=4.5)
+
+IntegrateAndAnimateMultiplePs(
+     ICs=ICs, t0=t0, tmax=tmax, N=1000, Ps=[4,5,6], sizer=1.0001, 
+     output_filename="precision_testing_output/integrate_and_animate_mutiple_methods.png")
+
+
+CompareSolutions(
+     ICs=ICs, t0=t0, tmax=tmax, N=2000, Ps=Ps, gridshape=(2,4), sizeOfFig=4.5, 
+     output_filename="precision_testing_output/compare_solutions.png")
+
+
+CompareSolutionErrors(
+     ICs=ICs, t0=t0, tmax=2 * np.pi, Ns=Ns, Ps=Ps, gridshape=(2,4), sizeOfFig=4.5, 
+     output_filename="precision_testing_output/compare_solution_errors.png")
 
 
 

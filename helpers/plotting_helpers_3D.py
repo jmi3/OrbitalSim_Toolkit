@@ -2,14 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 from matplotlib.animation import FuncAnimation, PillowWriter
-from hamilton import NewtonHamiltonian, KeplerHamiltonian
-from rkmethods import RKp
+from core.hamilton import NewtonHamiltonian, KeplerHamiltonian
+from core.rkmethods import RKp
 
 
 
 def plot_rkp_solutions_3D(rkp_solvers, initial_conditions, dydt, t0, tmax, h,
                           masses=None, central_body_index=None, mass_centre_view=False, central_body_view=False,
-                          xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), zlim=(-1.2, 1.2), names=None, gridshape=None, sizeOfFig=5):
+                          xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), zlim=(-1.2, 1.2), names=None, gridshape=None, sizeOfFig=5, output_filename = None):
     """
     Plots RKp solutions for all given rkp_solvers in 3D.
     Returns void.
@@ -80,13 +80,16 @@ def plot_rkp_solutions_3D(rkp_solvers, initial_conditions, dydt, t0, tmax, h,
         ax.grid(True)
 
     plt.tight_layout()
+    if output_filename is not None:
+        fig.savefig(output_filename)
+
     plt.show()
 
 
 def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_index=None,
                                   mass_centre_view=False, central_body_view=False,
                                   xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), zlim=(-1.2, 1.2), dt=1, interval=5,
-                                  names=None, show=[], motion_line_length=20):
+                                  names=None, show=[], motion_line_length=20, output_filename=None):
     """
     Runs animated version of the given positions history array in 3D. Introduces energies as separate graphs.
 
@@ -219,6 +222,8 @@ def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_
         return [*bodies, *kin_energies, pot_energy, *(motion_lines if "motion_lines" in show else [])]
 
     ani = FuncAnimation(fig, update, frames=num_steps, init_func=init, interval=interval)
+    if output_filename is not None:
+        ani.save(output_filename, writer=PillowWriter(fps=1000/interval))
     plt.legend()
     plt.show()
 
