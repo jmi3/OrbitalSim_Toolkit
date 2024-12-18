@@ -33,15 +33,14 @@ class RKp:
         self.t0 = t0
         self.t = t0
         self.h = h
-        tstop = tmax - h
         
-        steps = round((tmax-t0)/h)
-        for i in range(steps):
-            if (self.t <= tstop):
+        while True:
+            if (self.t + h < tmax):
                 self.NextStep()
             else:
-                self.h = tmax - self.t
-                self.NextStep()
+                if (tmax - self.t > 1e-14):
+                    self.h = tmax - self.t
+                    self.NextStep()
                 break
 
     # calculate ks for general Butcher table    
@@ -68,6 +67,7 @@ class RKp:
         # save y value
         self.y_history.append(self.y.copy())
         return (self.t-self.t0)//self.h
+    
     
     def GetHistory(self):
         return self.y_history
