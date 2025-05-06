@@ -167,7 +167,7 @@ RK4.Integrate(t0=0, tmax=1e7, h=1e4)
 
 ## Contributions
 
-This project is currently **closed for external contributions without previous consultation**. Future updates will be managed by the project maintainer and specified contributors. To be added as contributor, please contact me on [jancervenan@gmail.com](mailto\:jancervenan@gmail.com).
+This project is currently **closed for external contributions without previous consultation**. Future updates will be managed by the project maintainer and specified contributors. To be added as contributor, please contact me on [jancervenan@gmail.com](mailto\:jancervenan@gmail.com) as current development runs at private repository.
 
 ## License
 
