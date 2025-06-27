@@ -1,7 +1,7 @@
 import numpy as np
 import json 
 
-from core.hamilton import NewtonHamiltonian
+from core.hamiltonian import NewtonHamiltonian
 from core.simulation_manager import Simulation, SimulationSettings, SolverSettings
 from core.rkmethods import RKp
 

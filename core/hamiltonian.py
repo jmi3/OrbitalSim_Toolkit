@@ -33,10 +33,10 @@ class Hamiltonian:
     def dHdq(cls, masses: np.ndarray, positions: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
+
 ################################
 #  Central motion hamiltonian
 ################################
-
 class KeplerHamiltonian(Hamiltonian):
     @classmethod
     def HistoryOfLp(cls, momenta: np.ndarray, positions: np.ndarray) -> np.ndarray:
@@ -68,6 +68,7 @@ class NewtonHamiltonian(Hamiltonian):
         for i in range(len(momenta)):
             res[i] = cls.KineticEnergies(masses=masses,momenta=momenta[i])    
         return res
+    
     @classmethod
     def HistoryOfTotalPotentialEnergy(cls, masses: np.ndarray, positions: np.ndarray) -> np.ndarray:
         res = np.zeros(shape=len(positions))
@@ -82,7 +83,6 @@ class NewtonHamiltonian(Hamiltonian):
     @classmethod
     def KineticEnergy(cls, masses: np.ndarray, momenta: np.ndarray) -> float:
         return cls.KineticEnergies(masses,momenta).sum()
-
 
     @classmethod
     def TotalPotentialEnergy(cls, masses: np.ndarray, positions: np.ndarray) -> float:

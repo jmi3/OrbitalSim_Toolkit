@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 from matplotlib.animation import FuncAnimation, PillowWriter
-from core.hamilton import NewtonHamiltonian, KeplerHamiltonian
+from core.hamiltonian import NewtonHamiltonian, KeplerHamiltonian
 from core.rkmethods import RKp
 
 class ReturnedData:

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from core.hamilton import KeplerHamiltonian as H
+from core.hamiltonian import KeplerHamiltonian as H
 from core.rkmethods import RKp
 from helpers.plotting_helpers import animate_with_energy_Kepler,animate_multiple_with_energy_Kepler, plot_rkp_solutions
 

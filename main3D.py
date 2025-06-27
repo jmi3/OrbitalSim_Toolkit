@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 from matplotlib.animation import FuncAnimation
-from core.hamilton import NewtonHamiltonian
+from core.hamiltonian import NewtonHamiltonian
 from core.rkmethods import RKp
 from helpers.plotting_helpers_3D import animate_Newton_3D, animate_with_energy_Newton_3D, plot_rkp_solutions_3D
 
