@@ -1,20 +1,21 @@
 import numpy as np
 import json 
 
-from core.hamiltonian import NewtonHamiltonian
+from pm_hamiltonian import PMHamiltonian
 from core.simulation_manager import Simulation, SimulationSettings, SolverSettings
 from core.rkmethods import RKp
 
 class dHdQP:
-     def __init__(self, masses, H: NewtonHamiltonian):
+     def __init__(self, masses, H: PMHamiltonian):
           self.masses = masses
           self.H = H
-
+          
      def __call__(self, t, QP):
           G = 6.67430e-20  # km^3 kg^-1 s^-2
           [Q, P] = np.split(QP,2)
           # dq/dt = dH/dp , dp/dt = -dH/dq
-          return np.append(self.H.dHdp(self.masses, P),-G*self.H.dHdq(self.masses, Q),axis=0)
+          return np.append(self.H.dHdp(self.masses, P), -G*self.H.dHdq(self.masses, Q),axis=0)
+
 
 
 def obtain_ics(fp, objs=None):
@@ -48,10 +49,14 @@ solSet.order = 4
 
 
 # prepare f to simulate
-solSet.dydt = dHdQP(masses = masses, H = NewtonHamiltonian)
+solSet.dydt = dHdQP(masses = masses, H = PMHamiltonian)
 
 #######################
 size = 1e8
+granularity = 64
+dx = size/granularity
+
+solSet.dydt.H.SetParameters(G=1, workers=4, mesh_size=(granularity, granularity, granularity), dx=dx)
 
 sett = SimulationSettings()
 ##############################

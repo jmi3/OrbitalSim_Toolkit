@@ -42,7 +42,7 @@ class PMHamiltonian(Hamiltonian):
 
     @classmethod
     def KineticEnergies(cls, masses: np.ndarray, momenta: np.ndarray) -> np.ndarray:
-        return np.apply_along_axis(np.sum, axis=1, arr=(momenta ** 2))/(2 * masses)
+        return (momenta**2).sum(axis=1) / (2.0 * masses)
 
     @classmethod
     def KineticEnergy(cls, masses: np.ndarray, momenta: np.ndarray) -> float:
@@ -54,63 +54,49 @@ class PMHamiltonian(Hamiltonian):
     
     @classmethod
     def dHdp(cls, masses: np.ndarray, momenta: np.ndarray) -> np.ndarray:
-        raise NotImplementedError()
-    
-    @classmethod
-    def _nablaPhi(cls, phi: np.ndarray, dx: float) -> np.ndarray:
-        """
-        Compute the gradient of the potential field phi.
-        Parameters:
-        - phi: ndarray representing the potential field
-        - dx: grid spacing (assumed equal in all dimensions)
-        Returns:
-        - force: ndarray representing the gradient of phi
-        """
-        ndim = phi.ndim
-        force = np.empty((ndim,) + phi.shape, dtype=phi.dtype)
-        for axis in range(ndim):
-            forward = np.roll(phi, -1, axis=axis)
-            backward = np.roll(phi, 1, axis=axis)
-            force[axis] = -(forward - backward) / (2 * dx)
-        return force
+        return momenta / np.transpose(np.array([masses]))
+
     
     @classmethod
     def GenerateDensity(cls, masses: np.ndarray, positions: np.ndarray) -> np.ndarray:
         """
-        Convert masses and positions to a density field.
-        
-        Parameters:
-        - masses: ndarray of masses
-        - positions: ndarray of positions
-        
-        Returns:
-        - rho: ndarray representing the density field
+        Convert masses and positions to a density field (periodic NGP).
         """
-        # Create a grid for the density field
-        rho = np.zeros(cls.mesh_size)
-        
-        # Populate the density field based on positions and masses
+        rho = np.zeros(cls.mesh_size, dtype=np.float64)
+        cell_vol = cls.dx ** len(cls.mesh_size)   # volume per cell (dx^ndim)
         for mass, pos in zip(masses, positions):
             idx = tuple((pos / cls.dx).astype(int) % np.array(cls.mesh_size))
-            rho[idx] += mass
-        
+            rho[idx] += mass / cell_vol           # mass -> mass density
         return rho
+
+    @classmethod
+    def _nablaPhi(cls, phi: np.ndarray, dx: float) -> np.ndarray:
+        """
+        Periodic centered-difference gradient (returns +∇phi).
+        """
+        ndim = phi.ndim
+        grad = np.empty((ndim,) + phi.shape, dtype=phi.dtype)
+        for axis in range(ndim):
+            forward  = np.roll(phi, -1, axis=axis)
+            backward = np.roll(phi,  1, axis=axis)
+            grad[axis] = (forward - backward) / (2.0 * dx)
+        return grad  # +∇phi (no minus sign here)
+
     
     @classmethod
     def dHdq(cls, masses: np.ndarray, positions: np.ndarray) -> np.ndarray:
-        solver = PeriodicPoissonSolver(G=1.0, workers=4)
         rho = cls.GenerateDensity(masses, positions)
-        # Solve the Poisson equation to get the potential
-        phi = solver.solve(rho, dx=cls.dx)
-        nabla_phi = np.gradient(phi, cls.dx, axis=(0, 1, 2))
-        # Interpolate the gradient to the positions
-        dHdq = np.zeros_like(positions)
+        phi = cls.solver.solve(rho, dx=cls.dx)
+        grad_phi = cls._nablaPhi(phi, cls.dx)  # shape: (ndim, *grid)
+
+        # NGP interpolation of ∇Phi at particle positions
+        dHdq = np.zeros_like(positions, dtype=np.float64)
         for i, pos in enumerate(positions):
             idx = tuple((pos / cls.dx).astype(int) % np.array(cls.mesh_size))
-            dHdq[i] = np.array([nabla_phi[axis][idx] for axis in range(3)])
+            g = np.array([grad_phi[axis][idx] for axis in range(len(cls.mesh_size))])
+            dHdq[i] = masses[i] * g  # dH/dq = m * ∇Φ
         return dHdq
-        
-        
+
         
         
         
@@ -128,7 +114,7 @@ if __name__ == "__main__":
 
     # Plot a slice of the density field (e.g., the middle z-plane)
     plt.imshow(density[:, :, 0], origin='lower', cmap='viridis')
-    plt.colorbar(label='Density')
+    plt.colorbar(label='Density')   
     plt.title('Density Field (z-slice)')
     plt.xlabel('x')
     plt.ylabel('y')

@@ -51,7 +51,7 @@ f = dHdQP(masses = masses, H = NewtonHamiltonian)
 size = 2e8
 
 RK4 = RKp(order=4)
-    
+
 # integrate 
 RK4.Initialize(y0=ics, dydt=f)
 RK4.Integrate(t0=t0, tmax=tmax, h=h)

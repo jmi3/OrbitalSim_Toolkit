@@ -188,7 +188,7 @@ if __name__ == "__main__":
         ### Test dHdqDUMDUM 
 
         ti_dHdqDUMDUM = time.time()
-        #a.dHdqDUMDUM(masses,positions)
+        a.dHdqDUMDUM(masses,positions)
         tf_dHdqDUMDUM = time.time()
         
         
@@ -214,7 +214,7 @@ if __name__ == "__main__":
         
         ### Test dHdqDUMDUM 
         ti_dHdqDUMDUM = time.time()
-        #a.dHdqDUMDUM(masses,positions)
+        a.dHdqDUMDUM(masses,positions)
         tf_dHdqDUMDUM = time.time()
         
         

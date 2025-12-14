@@ -37,6 +37,7 @@ class RKp:
         while True:
             if (self.t + h < tmax):
                 self.NextStep()
+                print(f"Integration in progress...............{100*self.t/tmax:.2f}%", end="\r")
             else:
                 if (tmax - self.t > 1e-14):
                     self.h = tmax - self.t
@@ -62,7 +63,7 @@ class RKp:
         # obtain k values
         k = self._getKs()
         # update y and t values
-        self.y += self.h * sum( self.b[i] * k[i]  for i in range(len(self.c)))
+        self.y += self.h * sum(self.b[i] * k[i] for i in range(len(self.c)))
         self.t += self.h
         # save y value
         self.y_history.append(self.y.copy())
