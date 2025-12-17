@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environments
+.env
+.venv
+venv/
+ENV/
+
+# Test & coverage
+.coverage
+.tox/
+.nox/
+.cache/
+pytest_cache/
+
+# Logs
+*.log
+
+# Database
+*.sqlite3
+*.db
+
+# Output
+precision_testing_output/
+
+# Misc
+*.bak
+*.swp
+*.swo
+
+# Ignore database files
+/database/*.json
+!database/README.md
