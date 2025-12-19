@@ -1,7 +1,6 @@
-import numpy as np
-
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Callable
+
+import numpy as np
 
 
 class IIntegrator(ABC):

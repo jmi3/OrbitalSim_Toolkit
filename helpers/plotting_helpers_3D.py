@@ -1,15 +1,29 @@
-import numpy as np
 import matplotlib.pyplot as plt
-import json
+import numpy as np
 from matplotlib.animation import FuncAnimation, PillowWriter
-from core.hamilton import NewtonHamiltonian, KeplerHamiltonian
-from core.rkmethods import RKp
+
+from core.hamilton import NewtonHamiltonian
 
 
-
-def plot_rkp_solutions_3D(rkp_solvers, initial_conditions, dydt, t0, tmax, h,
-                          masses=None, central_body_index=None, mass_centre_view=False, central_body_view=False,
-                          xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), zlim=(-1.2, 1.2), names=None, gridshape=None, sizeOfFig=5, output_filename = None):
+def plot_rkp_solutions_3d(
+    rkp_solvers,
+    initial_conditions,
+    dydt,
+    t0,
+    tmax,
+    h,
+    masses=None,
+    central_body_index=None,
+    mass_centre_view=False,
+    central_body_view=False,
+    xlim=(-1.2, 1.2),
+    ylim=(-1.2, 1.2),
+    zlim=(-1.2, 1.2),
+    names=None,
+    gridshape=None,
+    size_of_fig=5,
+    output_filename=None,
+):
     """
     Plots RKp solutions for all given rkp_solvers in 3D.
     Returns void.
@@ -33,8 +47,11 @@ def plot_rkp_solutions_3D(rkp_solvers, initial_conditions, dydt, t0, tmax, h,
     if gridshape is None:
         gridshape = (1, len(rkp_solvers))
     # Prepare the plot size and layout
-    fig = plt.figure(figsize=(sizeOfFig * gridshape[1], sizeOfFig * gridshape[0]))
-    axes = [fig.add_subplot(gridshape[0], gridshape[1], i + 1, projection='3d') for i in range(len(rkp_solvers))]
+    fig = plt.figure(figsize=(size_of_fig * gridshape[1], size_of_fig * gridshape[0]))
+    axes = [
+        fig.add_subplot(gridshape[0], gridshape[1], i + 1, projection="3d")
+        for i in range(len(rkp_solvers))
+    ]
 
     if len(rkp_solvers) == 1:
         axes = [axes]
@@ -43,15 +60,21 @@ def plot_rkp_solutions_3D(rkp_solvers, initial_conditions, dydt, t0, tmax, h,
         # Initialize and integrate
         solver.Initialize(y0=initial_conditions, dydt=dydt)
         solver.Integrate(t0=t0, tmax=tmax, h=h)
-        QP_history = solver.GetHistory()
-        npQP_history = np.array(QP_history)
-        positions, momenta = np.split(npQP_history.transpose(1, 0, 2), 2)
+        qp_history = solver.GetHistory()
+        np_qp_history = np.array(qp_history)
+        positions, _ = np.split(np_qp_history.transpose(1, 0, 2), 2)
 
         # Determine shifts
         if mass_centre_view and masses is not None:
-            shift_x = (masses[:, np.newaxis] * positions[:, :, 0]).sum(axis=0) / masses.sum(axis=0)
-            shift_y = (masses[:, np.newaxis] * positions[:, :, 1]).sum(axis=0) / masses.sum(axis=0)
-            shift_z = (masses[:, np.newaxis] * positions[:, :, 2]).sum(axis=0) / masses.sum(axis=0)
+            shift_x = (masses[:, np.newaxis] * positions[:, :, 0]).sum(
+                axis=0
+            ) / masses.sum(axis=0)
+            shift_y = (masses[:, np.newaxis] * positions[:, :, 1]).sum(
+                axis=0
+            ) / masses.sum(axis=0)
+            shift_z = (masses[:, np.newaxis] * positions[:, :, 2]).sum(
+                axis=0
+            ) / masses.sum(axis=0)
         elif central_body_view and central_body_index is not None:
             shift_x = positions[central_body_index, :, 0]
             shift_y = positions[central_body_index, :, 1]
@@ -86,10 +109,23 @@ def plot_rkp_solutions_3D(rkp_solvers, initial_conditions, dydt, t0, tmax, h,
     plt.show()
 
 
-def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_index=None,
-                                  mass_centre_view=False, central_body_view=False,
-                                  xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), zlim=(-1.2, 1.2), dt=1, interval=5,
-                                  names=None, show=[], motion_line_length=20, output_filename=None):
+def animate_with_energy_newton_3d(
+    positions,
+    momenta,
+    masses=None,
+    central_body_index=None,
+    mass_centre_view=False,
+    central_body_view=False,
+    xlim=(-1.2, 1.2),
+    ylim=(-1.2, 1.2),
+    zlim=(-1.2, 1.2),
+    dt=1,
+    interval=5,
+    names=None,
+    show=[],
+    motion_line_length=20,
+    output_filename=None,
+):
     """
     Runs animated version of the given positions history array in 3D. Introduces energies as separate graphs.
 
@@ -117,9 +153,15 @@ def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_
     if names is None:
         names = [f"Object {i}" for i in range(len(positions))]
     if mass_centre_view and masses is not None:
-        shift_x = (masses[:, np.newaxis] * positions[:, :, 0]).sum(axis=0) / masses.sum(axis=0)
-        shift_y = (masses[:, np.newaxis] * positions[:, :, 1]).sum(axis=0) / masses.sum(axis=0)
-        shift_z = (masses[:, np.newaxis] * positions[:, :, 2]).sum(axis=0) / masses.sum(axis=0)
+        shift_x = (masses[:, np.newaxis] * positions[:, :, 0]).sum(axis=0) / masses.sum(
+            axis=0
+        )
+        shift_y = (masses[:, np.newaxis] * positions[:, :, 1]).sum(axis=0) / masses.sum(
+            axis=0
+        )
+        shift_z = (masses[:, np.newaxis] * positions[:, :, 2]).sum(axis=0) / masses.sum(
+            axis=0
+        )
     elif central_body_view and central_body_index is not None:
         shift_x = positions[central_body_index, :, 0]
         shift_y = positions[central_body_index, :, 1]
@@ -129,20 +171,37 @@ def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_
         shift_y = np.zeros(num_steps)
         shift_z = np.zeros(num_steps)
 
-    shifted_positions = np.array([
-        [positions[obj, :, 0] - shift_x, positions[obj, :, 1] - shift_y, positions[obj, :, 2] - shift_z]
-        for obj in range(num_objects)
-    ])
+    shifted_positions = np.array(
+        [
+            [
+                positions[obj, :, 0] - shift_x,
+                positions[obj, :, 1] - shift_y,
+                positions[obj, :, 2] - shift_z,
+            ]
+            for obj in range(num_objects)
+        ]
+    )
 
     # Calculate energy histories
-    pot_energy_history = NewtonHamiltonian.HistoryOfTotalPotentialEnergy(masses, positions=np.transpose(positions, axes=(1, 0, 2)))
-    kin_energy_history: np.ndarray = np.transpose(NewtonHamiltonian.HistoryOfKineticEnergies(masses, momenta=np.transpose(momenta, axes=(1, 0, 2))), axes=(1, 0))
-    tot_energy_history = (6.67430e-20 * pot_energy_history) + kin_energy_history.sum(axis=0)
+    pot_energy_history = NewtonHamiltonian.history_of_total_potential_energy(
+        masses, positions=np.transpose(positions, axes=(1, 0, 2))
+    )
+    kin_energy_history: np.ndarray = np.transpose(
+        NewtonHamiltonian.history_of_kinetic_energies(
+            masses, momenta=np.transpose(momenta, axes=(1, 0, 2))
+        ),
+        axes=(1, 0),
+    )
+    tot_energy_history = (6.67430e-20 * pot_energy_history) + kin_energy_history.sum(
+        axis=0
+    )
 
     # Set up figure and axes for animation
     fig = plt.figure(figsize=(14, 8))
-    grid = fig.add_gridspec(2, 2, width_ratios=[1, 1], height_ratios=[1, 1], wspace=0.4, hspace=0.3)
-    ax_motion = fig.add_subplot(grid[:, 0], projection='3d')
+    grid = fig.add_gridspec(
+        2, 2, width_ratios=[1, 1], height_ratios=[1, 1], wspace=0.4, hspace=0.3
+    )
+    ax_motion = fig.add_subplot(grid[:, 0], projection="3d")
     ax_energy = fig.add_subplot(grid[0, 1])
     ax_kin = fig.add_subplot(grid[1, 1])
 
@@ -159,11 +218,11 @@ def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_
     if "solar_ecliptic" in show:
         xx, yy = np.meshgrid(np.linspace(*xlim, 10), np.linspace(*ylim, 10))
         zz = yy / 2
-        ax_motion.plot_surface(xx, yy, zz, alpha=0.1, color='magenta')
+        ax_motion.plot_surface(xx, yy, zz, alpha=0.1, color="magenta")
     if "galactic_ecliptic" in show:
         xx, yy = np.meshgrid(np.linspace(*xlim, 10), np.linspace(*ylim, 10))
         zz = np.zeros_like(xx)
-        ax_motion.plot_surface(xx, yy, zz, alpha=0.1, color='cyan')
+        ax_motion.plot_surface(xx, yy, zz, alpha=0.1, color="cyan")
 
     # Set up kinetic energy plot
     ax_kin.set_title("Kinetic energies in the system")
@@ -180,16 +239,23 @@ def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_
     ax_energy.set_ylim(tot_energy_history.min() * 1.1, tot_energy_history.max() / 1.1)
 
     # Initialize plots for animation
-    bodies = [ax_motion.plot([], [], [], 'o', label=names[i], lw=2)[0] for i in range(num_objects)]
-    pot_energy = ax_energy.plot([], [], '-', label="Total V ")[0]
-    kin_energies = [ax_kin.plot([], [], '-', label=names[i], lw=2)[0] for i in range(num_objects)]
+    bodies = [
+        ax_motion.plot([], [], [], "o", label=names[i], lw=2)[0]
+        for i in range(num_objects)
+    ]
+    pot_energy = ax_energy.plot([], [], "-", label="Total V ")[0]
+    kin_energies = [
+        ax_kin.plot([], [], "-", label=names[i], lw=2)[0] for i in range(num_objects)
+    ]
     t_space = np.linspace(0, dt * len(positions[0]), len(positions[0]))
     ax_motion.legend(loc="upper right")
     ax_kin.legend(loc="upper right")
 
     # Initialize motion lines for each object if "motion_lines" is in show
     if "motion_lines" in show:
-        motion_lines = [ax_motion.plot([], [], [], '-', alpha=0.3)[0] for _ in range(num_objects)]
+        motion_lines = [
+            ax_motion.plot([], [], [], "-", alpha=0.3)[0] for _ in range(num_objects)
+        ]
 
     # Initialize animation function
     def init():
@@ -202,7 +268,12 @@ def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_
             for line in motion_lines:
                 line.set_data([], [])
                 line.set_3d_properties([])
-        return [*bodies, *kin_energies, pot_energy, *(motion_lines if "motion_lines" in show else [])]
+        return [
+            *bodies,
+            *kin_energies,
+            pot_energy,
+            *(motion_lines if "motion_lines" in show else []),
+        ]
 
     # Updase function for each frame
     def update(frame):
@@ -213,25 +284,47 @@ def animate_with_energy_Newton_3D(positions, momenta, masses=None, central_body_
             if x_data.shape == y_data.shape == z_data.shape:
                 body.set_data(x_data[-1:], y_data[-1:])
                 body.set_3d_properties(z_data[-1:])
-            kin.set_data(t_space[:frame + 1], kin_energy_history[i, :frame + 1])
+            kin.set_data(t_space[: frame + 1], kin_energy_history[i, : frame + 1])
             if "motion_lines" in show:
-                motion_lines[i].set_data(x_data[-motion_line_length:], y_data[-motion_line_length:])
+                motion_lines[i].set_data(
+                    x_data[-motion_line_length:], y_data[-motion_line_length:]
+                )
                 motion_lines[i].set_3d_properties(z_data[-motion_line_length:])
                 motion_lines[i].set_alpha(0.3)
-        pot_energy.set_data(t_space[:frame + 1], tot_energy_history[:frame + 1])
-        return [*bodies, *kin_energies, pot_energy, *(motion_lines if "motion_lines" in show else [])]
+        pot_energy.set_data(t_space[: frame + 1], tot_energy_history[: frame + 1])
+        return [
+            *bodies,
+            *kin_energies,
+            pot_energy,
+            *(motion_lines if "motion_lines" in show else []),
+        ]
 
-    ani = FuncAnimation(fig, update, frames=num_steps, init_func=init, interval=interval)
+    ani = FuncAnimation(
+        fig, update, frames=num_steps, init_func=init, interval=interval
+    )
     if output_filename is not None:
-        ani.save(output_filename, writer=PillowWriter(fps=1000/interval))
+        ani.save(output_filename, writer=PillowWriter(fps=1000 / interval))
     plt.legend()
     plt.show()
 
 
-def animate_Newton_3D(positions, masses=None, central_body_index=None,
-                    mass_centre_view=False, central_body_view=False,
-                    xlim=(-1.2, 1.2), ylim=(-1.2, 1.2), zlim=(-1.2, 1.2), interval=5,
-                    names=None, show=[], motion_line_length=20, output_filename=None, ani_title = "Animation",**kwargs):
+def animate_newton_3d(
+    positions,
+    masses=None,
+    central_body_index=None,
+    mass_centre_view=False,
+    central_body_view=False,
+    xlim=(-1.2, 1.2),
+    ylim=(-1.2, 1.2),
+    zlim=(-1.2, 1.2),
+    interval=5,
+    names=None,
+    show=[],
+    motion_line_length=20,
+    output_filename=None,
+    ani_title="Animation",
+    **kwargs,
+):
     """
     Runs animated version of the given positions history array in 3D. Introduces energies as separate graphs.
 
@@ -259,9 +352,15 @@ def animate_Newton_3D(positions, masses=None, central_body_index=None,
     if names is None:
         names = [f"Object {i}" for i in range(len(positions))]
     if mass_centre_view and masses is not None:
-        shift_x = (masses[:, np.newaxis] * positions[:, :, 0]).sum(axis=0) / masses.sum(axis=0)
-        shift_y = (masses[:, np.newaxis] * positions[:, :, 1]).sum(axis=0) / masses.sum(axis=0)
-        shift_z = (masses[:, np.newaxis] * positions[:, :, 2]).sum(axis=0) / masses.sum(axis=0)
+        shift_x = (masses[:, np.newaxis] * positions[:, :, 0]).sum(axis=0) / masses.sum(
+            axis=0
+        )
+        shift_y = (masses[:, np.newaxis] * positions[:, :, 1]).sum(axis=0) / masses.sum(
+            axis=0
+        )
+        shift_z = (masses[:, np.newaxis] * positions[:, :, 2]).sum(axis=0) / masses.sum(
+            axis=0
+        )
     elif central_body_view and central_body_index is not None:
         shift_x = positions[central_body_index, :, 0]
         shift_y = positions[central_body_index, :, 1]
@@ -271,16 +370,21 @@ def animate_Newton_3D(positions, masses=None, central_body_index=None,
         shift_y = np.zeros(num_steps)
         shift_z = np.zeros(num_steps)
 
-    shifted_positions = np.array([
-        [positions[obj, :, 0] - shift_x, positions[obj, :, 1] - shift_y, positions[obj, :, 2] - shift_z]
-        for obj in range(num_objects)
-    ])
+    shifted_positions = np.array(
+        [
+            [
+                positions[obj, :, 0] - shift_x,
+                positions[obj, :, 1] - shift_y,
+                positions[obj, :, 2] - shift_z,
+            ]
+            for obj in range(num_objects)
+        ]
+    )
 
-  
     # Set up figure and axes for animation
     fig = plt.figure(figsize=(14, 8))
-    ax_motion = fig.add_subplot(projection='3d')
-  
+    ax_motion = fig.add_subplot(projection="3d")
+
     # Set up appearance of motion animation
     ax_motion.set_xlim(xlim)
     ax_motion.set_ylim(ylim)
@@ -294,19 +398,24 @@ def animate_Newton_3D(positions, masses=None, central_body_index=None,
     if "solar_ecliptic" in show:
         xx, yy = np.meshgrid(np.linspace(*xlim, 10), np.linspace(*ylim, 10))
         zz = yy / 2
-        ax_motion.plot_surface(xx, yy, zz, alpha=0.1, color='magenta')
+        ax_motion.plot_surface(xx, yy, zz, alpha=0.1, color="magenta")
     if "galactic_ecliptic" in show:
         xx, yy = np.meshgrid(np.linspace(*xlim, 10), np.linspace(*ylim, 10))
         zz = np.zeros_like(xx)
-        ax_motion.plot_surface(xx, yy, zz, alpha=0.1, color='cyan')
+        ax_motion.plot_surface(xx, yy, zz, alpha=0.1, color="cyan")
 
     # Initialize plots for animation
-    bodies = [ax_motion.plot([], [], [], 'o', label=names[i], lw=2)[0] for i in range(num_objects)]
+    bodies = [
+        ax_motion.plot([], [], [], "o", label=names[i], lw=2)[0]
+        for i in range(num_objects)
+    ]
     ax_motion.legend(loc="upper right")
 
     # Initialize motion lines for each object if "motion_lines" is in show
     if "motion_lines" in show:
-        motion_lines = [ax_motion.plot([], [], [], '-', alpha=0.3)[0] for _ in range(num_objects)]
+        motion_lines = [
+            ax_motion.plot([], [], [], "-", alpha=0.3)[0] for _ in range(num_objects)
+        ]
 
     # Initialize animation function
     def init():
@@ -329,19 +438,22 @@ def animate_Newton_3D(positions, masses=None, central_body_index=None,
                 body.set_data(x_data[-1:], y_data[-1:])
                 body.set_3d_properties(z_data[-1:])
             if "motion_lines" in show:
-                motion_lines[i].set_data(x_data[-motion_line_length:], y_data[-motion_line_length:])
+                motion_lines[i].set_data(
+                    x_data[-motion_line_length:], y_data[-motion_line_length:]
+                )
                 motion_lines[i].set_3d_properties(z_data[-motion_line_length:])
                 motion_lines[i].set_alpha(0.3)
-        
+
         # Rotate the view
-        ax_motion.view_init(elev=10., azim=frame * 0.8)
+        ax_motion.view_init(elev=10.0, azim=frame * 0.8)
         return [*bodies, *(motion_lines if "motion_lines" in show else [])]
 
-    ani = FuncAnimation(fig, update, frames=num_steps, init_func=init, interval=interval)
+    ani = FuncAnimation(
+        fig, update, frames=num_steps, init_func=init, interval=interval
+    )
     # Save animation as video if output filename is specified
     if output_filename is not None:
-        ani.save(output_filename, writer=PillowWriter(fps=1000/interval))
+        ani.save(output_filename, writer=PillowWriter(fps=1000 / interval))
 
     plt.legend()
     plt.show()
-

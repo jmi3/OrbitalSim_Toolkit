@@ -1,54 +1,63 @@
+import json
+
 import numpy as np
-import json 
 
 from core.hamilton import NewtonHamiltonian
-from core.simulation_manager import Simulation, SimulationSettings, SolverSettings
 from core.rkmethods import RKp
+from core.simulation_manager import Simulation, SimulationSettings, SolverSettings
 
-class dHdQP:
-     def __init__(self, masses, H: NewtonHamiltonian):
-          self.masses = masses
-          self.H = H
 
-     def __call__(self, t, QP):
-          G = 6.67430e-20  # km^3 kg^-1 s^-2
-          [Q, P] = np.split(QP,2)
-          # dq/dt = dH/dp , dp/dt = -dH/dq
-          return np.append(self.H.dHdp(self.masses, P),-G*self.H.dHdq(self.masses, Q),axis=0)
+class MotionEquations:
+    def __init__(self, masses, hamiltonian: NewtonHamiltonian):
+        self.masses = masses
+        self.hamiltonian = hamiltonian
+
+    def __call__(self, t, qp):
+        newton_constants = 6.67430e-20  # km^3 kg^-1 s^-2
+        [positions, momenta] = np.split(qp, 2)
+        # dq/dt = dH/dp , dp/dt = -dH/dq
+        return np.append(
+            self.hamiltonian.momentum_derivative(self.masses, momenta),
+            -newton_constants
+            * self.hamiltonian.position_derivative(self.masses, positions),
+            axis=0,
+        )
 
 
 def obtain_ics(fp):
-     eph_data = json.load(fp)
-     temp_m = []
-     temp_Q = []
-     temp_P = []
-     for eph in eph_data.values():
-          temp_m.append(eph["m"])
-          temp_Q.append(np.array(eph["q"]))
-          temp_P.append(np.array(eph["p"]))
-     objs = len(eph_data.values())
-     QP = np.append(np.array(temp_Q[:objs]), np.array(temp_P[:objs]),axis=0)
-     return np.array(temp_m[:objs]), QP, list(eph_data.keys())[:objs]
+    eph_data = json.load(fp)
+    temp_masses = []
+    temp_positions = []
+    temp_momenta = []
+    for eph in eph_data.values():
+        temp_masses.append(eph["m"])
+        temp_positions.append(np.array(eph["q"]))
+        temp_momenta.append(np.array(eph["p"]))
+    objs = len(eph_data.values())
+    qp = np.append(
+        np.array(temp_positions[:objs]), np.array(temp_momenta[:objs]), axis=0
+    )
+    return np.array(temp_masses[:objs]), qp, list(eph_data.keys())[:objs]
 
 
 with open("database/solar_system_3d.json") as file:
-     masses, ics, names = obtain_ics(fp=file)
+    masses, ics, names = obtain_ics(fp=file)
 
 
 # setup integration parameters
-solSet = SolverSettings()
+solver_settings = SolverSettings()
 
-solSet.t0 = 0
-solSet.dt = 1050
-solSet.tmax =7800*solSet.dt
+solver_settings.t0 = 0
+solver_settings.dt = 1050
+solver_settings.tmax = 7800 * solver_settings.dt
 
-solSet.ICs = ics
+solver_settings.initial_conditions = ics
 
-solSet.order = 4
+solver_settings.order = 4
 
 
 # prepare f to simulate
-solSet.dydt = dHdQP(masses = masses, H = NewtonHamiltonian)
+solver_settings.dydt = MotionEquations(masses=masses, hamiltonian=NewtonHamiltonian)
 
 #######################
 size = 5e9
@@ -56,24 +65,23 @@ size = 5e9
 sett = SimulationSettings()
 ##############################
 # Set shown figures
-sett.SolarEcliptic = False
-sett.GalacticEcliptic = False
+sett.solar_ecliptic = False
+sett.galactic_ecliptic = False
 
 # Set size of drawn area
-sett.RangeX = (-size, size)
-sett.RangeY = (-size, size)
-sett.RangeZ = (-size, size)
+sett.range_x = (-size, size)
+sett.range_y = (-size, size)
+sett.range_z = (-size, size)
 
 # Set FPS and stepcount
-sett.FPS = 10
-sett.StepsPerFrame = 1000
+sett.fps = 10
+sett.steps_per_frame = 1000
 
 # Set names of bodies and line lengths
-sett.NoOfBodies = len(names)
-sett.Legend = names
-sett.AbsoluteMotionLineLength = 100
+sett.no_of_bodies = len(names)
+sett.legend = names
+sett.absolute_motion_line_length = 100
 
 
-mngr = Simulation(solver_class=RKp, settings=sett, solver_settings=solSet) 
-mngr.Run()
-
+mngr = Simulation(solver_class=RKp, settings=sett, solver_settings=solver_settings)
+mngr.run_simulation()
