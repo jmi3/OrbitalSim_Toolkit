@@ -6,14 +6,14 @@ from .plotting_helpers import (
     plot_rkp_solutions,
 )
 from .plotting_helpers_3d import (
-    animate_Newton_3d,
+    animate_newton_3d,
     animate_with_energy_newton_3d,
     plot_rkp_solutions_3d,
 )
 
 __all__ = [
-    "animate_Newton_3d",
     "animate_multiple_with_energy_kepler",
+    "animate_newton_3d",
     "animate_rkp_motion",
     "animate_with_energy_kepler",
     "animate_with_energy_newton",
